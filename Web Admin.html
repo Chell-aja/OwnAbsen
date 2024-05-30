@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Absensi - Web Admin</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #000000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        header img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="file:///C:/Users/pc/Desktop/Own.Project/Bahan%20Kerjaan/Logo%20Own%20Project%20Hitam.png" alt="Own Project">
+        <!-- Ubah nama situs web di bawah sesuai keinginan Anda -->
+        <h1>Data Absensi - Web Admin</h1>
+    </header>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Waktu Absen</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceRecords">
+            <!-- Data absensi akan ditampilkan di sini -->
+        </tbody>
+    </table>
+
+    <script>
+        // Ambil data absensi dari backend dan tampilkan di tabel
+        function fetchAttendanceRecords() {
+            // Ganti URL dengan URL endpoint yang sesuai
+            fetch('https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const attendanceRecords = document.getElementById('attendanceRecords');
+                    attendanceRecords.innerHTML = '';
+
+                    // Contoh data absensi
+                    const sampleData = [
+                        { name: 'John Doe', timestamp: '2024-05-30 08:00:00' },
+                        { name: 'Jane Smith', timestamp: '2024-05-30 08:05:00' },
+                        // Tambahkan data lain sesuai kebutuhan
+                    ];
+
+                    // Gunakan data contoh jika data dari backend tidak tersedia
+                    const records = data.length > 0 ? data : sampleData;
+
+                    records.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.name}</td>
+                            <td>${record.timestamp}</td>
+                        `;
+                        attendanceRecords.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error:', error.message));
+        }
+
+        // Panggil fungsi fetchAttendanceRecords() saat halaman dimuat
+        window.onload = fetchAttendanceRecords;
+    </script>
+</body>
+
+</html>

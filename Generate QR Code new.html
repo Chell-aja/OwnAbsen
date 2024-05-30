@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Absensi</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <style>
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate QR Code untuk Absen</h1>
+    <form id="absenForm">
+        <label for="name">Nama:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <div id="qrcode"></div>
+
+    <script>
+        document.getElementById('absenForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var name = document.getElementById('name').value;
+            if (name.trim() === "") {
+                alert("Nama tidak boleh kosong");
+                return;
+            }
+            var qrCodeData = {
+                name: name,
+                timestamp: new Date().toISOString()
+            };
+            var qrCodeString = JSON.stringify(qrCodeData);
+
+            // Hapus QR code sebelumnya jika ada
+            var qrcodeElement = document.getElementById('qrcode');
+            qrcodeElement.innerHTML = "";
+            // Buat elemen canvas
+            var canvas = document.createElement('canvas');
+            qrcodeElement.appendChild(canvas);
+            
+            // Generate QR code baru
+            try {
+                QRCode.toCanvas(canvas, qrCodeString, function (error) {
+                    if (error) {
+                        console.error(error);
+                        alert("Terjadi kesalahan saat membuat QR Code");
+                    } else {
+                        console.log('QR Code berhasil dibuat!');
+                        // Kirim data absensi ke backend
+                        fetch('https://AbsensiOwnProject.com/api/attendance', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(qrCodeData)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response from server:', data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat mengirim data absensi ke server');
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat membuat QR Code");
+            }
+        });
+    </script>
+</body>
+</html>
